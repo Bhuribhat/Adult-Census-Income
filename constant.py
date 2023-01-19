@@ -49,6 +49,10 @@ class myEntry(Entry):
         self["bg"] = DARKER
         self["insertbackground"] = "orange"
 
+    def set(self, text):
+        self.delete(0, END)
+        self.insert(0, text)
+
 
 class myCombobox(ttk.Combobox):
     def __init__(self, *args, **kwargs):
@@ -56,3 +60,12 @@ class myCombobox(ttk.Combobox):
         self["font"] = 15
         self["width"] = 28
         self["state"] = "readonly"
+
+
+# must be in this order (to calculate edu.num)
+education_value = [
+    "Preschool", "1st-4th", "5th-6th", "7th-8th", 
+    "9th", "10th", "11th", "12th",
+    "HS-grad", "Assoc-acdm", "Assoc-voc", "Some-college", 
+    "Bachelors", "Masters", "Prof-school", "Doctorate"
+]

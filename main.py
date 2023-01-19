@@ -1,4 +1,5 @@
 import pickle
+import random
 import pandas as pd
 
 from constant import *
@@ -29,6 +30,27 @@ def split_feature_class(dataset, feature):
     return features, labels
 
 
+# Random all data required to make prediction
+def random_handle():
+    all_features = [
+        age, workclass, education, status, occupation,
+        relation, race, sex, gain, loss, hour, native
+    ]
+
+    # clean dataset first
+    dataset = pd.read_csv("./assets/adult.csv")
+    dataset.drop(["fnlwgt", "income", "education.num"], axis=1, inplace=True)
+
+    # replace '?' with mode value
+    edit_columnss = ['native.country', 'occupation', 'workclass']
+    for column in edit_columnss:
+        dataset.loc[dataset[column] == '?', column] = dataset[column].mode()[0]
+
+    # random data from each column
+    for idx, feature in enumerate(dataset.columns):
+        all_features[idx].set(random.choice(dataset[feature]))
+
+
 # Predict whether a person has income over $50k per year
 def predict_model(feature, name):
     model = load_model()
@@ -48,8 +70,7 @@ def predict_model(feature, name):
 
 
 # Update DataFrame and Label in UI
-def update_data(age, workclass, education, status, occupation,
-                relation, race, sex, gain, loss, hour, native, name):
+def update_data():
     try:
         education_num = education_value.index(education.get()) + 1
         feature = {
@@ -97,14 +118,11 @@ if __name__ == '__main__':
     combostyle.configure("TCombobox", fieldbackground=DARKER)
 
     # Input frame
-    global input_frame
     input_frame = Frame(ROOT, pady=10, bg=DKBLUE)
     input_frame.pack()
 
     # labels for GUI
-    global dataset, education_value
     dataset = pd.read_csv("./assets/adult.csv")
-    education_value = sorted(dataset['education'].unique().tolist())
 
     # Input Combobox Features
     eduChoice = StringVar(value="Please select an Education..")
@@ -191,11 +209,13 @@ if __name__ == '__main__':
     myLabel(input_frame, text=None).grid(row=5, column=0, columnspan=3, sticky="news")
     myLabel(input_frame, text="Person Income").grid(row=6, column=2, rowspan=2, sticky="news")
 
-    # TODO random button
-    predict_command = lambda: update_data(
-        age, workclass, education, status, occupation, relation, race, sex, gain, loss, hour, native, name
-    )
+    # button and function
+    random_command = lambda: random_handle()
+    random_button = HooverButton(input_frame, text="Random", command=random_command)
+    random_button.grid(row=6, column=0, pady=3, sticky="news")
+
+    predict_command = lambda: update_data()
     predict_button = HooverButton(input_frame, text="Predict", command=predict_command)
-    predict_button.grid(row=7, column=0, rowspan=1, sticky="news")
+    predict_button.grid(row=7, column=0, pady=3, sticky="news")
 
     ROOT.mainloop()
