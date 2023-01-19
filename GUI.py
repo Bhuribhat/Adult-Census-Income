@@ -5,9 +5,7 @@ from tkinter import *
 from tkinter import ttk
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score
+
 
 # Constants
 YELLOW = "#fece2f"
@@ -16,31 +14,30 @@ DARKER = "#1F2937"
 DARK   = "#303340"
 DKGREY = "#374151"
 
-edu_order = ["Preschool", "1st-4th", "5th-6th", "7th-8th", "9th", "10th", "11th", "12th",
-"HS-grad", "Assoc-acdm", "Assoc-voc", "Some-college", "Bachelors", "Masters", "Prof-school", "Doctorate"]
+edu_order = [
+    "Preschool", "1st-4th", "5th-6th", "7th-8th", "9th", "10th", "11th", "12th", "HS-grad", 
+    "Assoc-acdm", "Assoc-voc", "Some-college", "Bachelors", "Masters", "Prof-school", "Doctorate"
+]
 
-country = sorted(['Cambodia', 'Canada', 'China', 'Columbia', 'Cuba', 'Dominican-Republic', 'Ecuador', 'El-Salvador', 
-'England', 'France', 'Germany', 'Greece', 'Guatemala', 'Haiti', 'Holand-Netherlands', 'Honduras', 'Hong', 
-'Hungary', 'India', 'Iran', 'Ireland', 'Italy', 'Jamaica', 'Japan', 'Laos', 'Mexico', 'Nicaragua', 
-'Outlying-US(Guam-USVI-etc)', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto-Rico', 'Scotland', 'South', 
-'Taiwan', 'Thailand', 'Trinadad&Tobago', 'United-States', 'Vietnam', 'Yugoslavia'])
-
-
-# Save and Load model in "Python Pickle File"
-def save_model(model):
-    pickle.dump(model, open("model.pkl", "wb"))
+country = sorted([
+    'Cambodia', 'Canada', 'China', 'Columbia', 'Cuba', 'Dominican-Republic', 'Ecuador', 'El-Salvador',
+    'England', 'France', 'Germany', 'Greece', 'Guatemala', 'Haiti', 'Holand-Netherlands', 'Honduras', 
+    'Hong', 'Hungary', 'India', 'Iran', 'Ireland', 'Italy', 'Jamaica', 'Japan', 'Laos', 'Mexico', 
+    'Nicaragua', 'Outlying-US(Guam-USVI-etc)', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto-Rico', 
+    'Scotland', 'South', 'Taiwan', 'Thailand', 'Trinadad&Tobago', 'United-States', 'Vietnam', 'Yugoslavia'
+])
 
 
 def load_model():
-    return pickle.load(open("model.pkl", "rb"))
+    return pickle.load(open("./assets/model.pkl", "rb"))
 
 
 # Encode dataset column to number base
 def cleandata(dataset):
     dataset.drop("fnlwgt", axis = 1, inplace = True)
     for column in dataset.columns:
-        MODE = dataset[column].mode()[0]
-        dataset[column].fillna(MODE, inplace = True)
+        mode = dataset[column].mode()[0]
+        dataset[column].fillna(mode, inplace = True)
     for column in dataset.columns:
         if isinstance(dataset[column].dtype, object):
             LE = LabelEncoder()
@@ -55,39 +52,20 @@ def split_feature_class(dataset, feature):
     return features, labels
 
 
-# Dataset: https://www.kaggle.com/uciml/adult-census-income
-def train_model():
-    dataset = pd.read_csv("adult.csv")
-    dataset = cleandata(dataset)
-
-    # train 80 % and test 20 %
-    train_set, test_set = train_test_split(dataset, test_size=0.2)
-
-    # train and test
-    train_features, train_labels = split_feature_class(train_set, "income")
-    test_features, test_labels   = split_feature_class(test_set,  "income")
-
-    # model prediction accuracy
-    MODEL = GaussianNB()
-    MODEL.fit(train_features, train_labels)
-
-    clf_pred = MODEL.predict(test_features)
-    print("Accuracy =", accuracy_score(test_labels, clf_pred))
-    save_model(MODEL)
-    print("Done Saving Model")
-
-
 # Predict whether a person has income over $50k per year 
 def predict_model(feature, name):
-    MODEL = load_model()
-    prediction = MODEL.predict(feature)
+    model = load_model()
+    prediction = model.predict(feature)
+
     if prediction == 0:
         text  = f"{name.get()} has income less than $50k"
         color = "lightblue"
     else:
         text  = f"{name.get()} has income more than $50k"
         color = "lime"
-    Label(text=text, padx=10, font=15, fg=color, bg=DARKER
+
+    Label(
+        text=text, padx=10, font=15, fg=color, bg=DARKER
     ).grid(row=6, column=2, rowspan=2, sticky="news")
 
 
@@ -117,13 +95,14 @@ relation, race, sex, gain, loss, hour, native, name):
         dataset = pd.concat([dataset, DF], axis = 0)
         dataset = cleandata(dataset)
         predict_model(dataset.iloc[[-1]], name)
+
     except Exception:
         text = "Please inform all features!"
-        Label(text=text, padx=10, font=15, fg="red", bg=DARKER
+        Label(
+            text=text, padx=10, font=15, fg="red", bg=DARKER
         ).grid(row=6, column=2, rowspan=2, sticky="news")
 
 
-# main GUI for prediction
 def user_interface():
     ROOT = Tk()
     ROOT.title("Adult Census Income")
@@ -227,12 +206,6 @@ def user_interface():
     ROOT.mainloop()
 
 
-if __name__ == '__main__':
-    print(" Adult Census Income ".center(30, '='))
-    print("1 Train Model\n2 Prediction")
 
-    command = input("Enter Command: ").strip()
-    if command == '1':
-        train_model()
-    else:
-        user_interface()
+if __name__ == '__main__':
+    user_interface()
