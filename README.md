@@ -1,7 +1,7 @@
 # Adult Census Income
 
 using dataset from [kaggle](https://www.kaggle.com/uciml/adult-census-income)  
-GaussianNB model **accuracy = 82.40 %**
+GaussianNB model **accuracy = 82.13 %**
 
 
 ## About Dataset
@@ -21,12 +21,22 @@ We use all three sets of controls in our weighting program and "rake" through th
 
 ![education](./assets/education.png)
 
+## Feature Importance
+
+Let's start with decision trees to build some intuition. In decision trees, every node is a condition how to split values in a single feature, so that similar values of dependent variable end up in the same set after the split. The condition is based on impurity, which in case of classification problems is Gini impurity / information gain (entropy), while for regression trees its variance. So when training a tree we can compute how much each feature contributes to decreasing the weighted impurity. **feature_importances_** in Scikit-Learn is based on that logic, but in case of Random Forest we are talking about averaging the decrease in impurity over trees.
+
+![importance](./assets/importance.png)
+
+## Evaluation
+
+![confusion matrix](./assets/confusion.png)
+
 
 ## Usage
 
 ```sh
 >> py main.py
-```
+```  
 
 ![gui](./assets/gui_normal.png)
 
@@ -35,10 +45,10 @@ We use all three sets of controls in our weighting program and "rake" through th
 
 ## Example
 
-- has income more than 50k
+- has income more than 50k  
 ![gui](./assets/gui_rich.png)
 
 </br>
 
-- has income less than 50k
+- has income less than 50k  
 ![gui](./assets/gui_poor.png)
